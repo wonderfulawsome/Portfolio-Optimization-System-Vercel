@@ -1,4 +1,5 @@
-# Portfolio Optimization System – React
+# ![image](https://github.com/user-attachments/assets/cda89229-d42c-4d03-a525-c5c9f3e7ab9e)
+ Portfolio Optimization System – React
 
 본 리포지토리는 포트폴리오 최적화 시스템의 프론트엔드 부분을 React(Next.js)를 활용하여 구현한 프로젝트입니다. 사용자는 재무 지표(예: PER, Dividend Yield, Beta, RSI, 거래량, 변동성)를 선택한 후 **Optimize** 버튼을 클릭하여 백엔드(Flask API)로부터 산출된 최적화 결과를 확인하실 수 있습니다.
 

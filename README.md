@@ -20,17 +20,18 @@
 
 Portfolio-Optimization-System-React/
 ├── pages/
-│   └── index.js              // 메인 React 컴포넌트 (최적화 시스템 UI)
-├── PortfolioOptimizer.js     // (선택 사항) 별도의 최적화 컴포넌트 파일
-├── ajax.js                   // (필요 시) Ajax 관련 스크립트
-├── api.js                    // 백엔드 API 호출 관련 함수 (optimizePortfolio)
-├── index.html                // 정적 HTML (필요 시)
-├── scripts.js                // 정적 자바스크립트 (필요 시)
-├── styles.css                // 전역 CSS (배경, 폰트, 레이아웃 스타일 등)
-├── package.json              // Node.js 및 프로젝트 의존성 정보
-├── docker-compose.yml        // Docker 배포를 위한 구성 파일 (옵션)
-├── vercel.json               // Vercel 배포 설정 파일
-└── README.md                 // 본 문서
+│   └── index.js              # 메인 React 컴포넌트 (최적화 시스템 UI)
+├── PortfolioOptimizer.js     # (선택 사항) 별도의 최적화 컴포넌트 파일
+├── ajax.js                   # (필요 시) Ajax 관련 스크립트
+├── api.js                    # 백엔드 API 호출 관련 함수 (optimizePortfolio)
+├── index.html                # 정적 HTML (필요 시)
+├── scripts.js                # 정적 자바스크립트 (필요 시)
+├── styles.css                # 전역 CSS (배경, 폰트, 레이아웃 스타일 등)
+├── package.json              # Node.js 및 프로젝트 의존성 정보
+├── docker-compose.yml        # Docker 배포를 위한 구성 파일 (옵션)
+├── vercel.json               # Vercel 배포 설정 파일
+└── README.md                 # 본 문서
+
 
 
 > **참고:** 본 리포지토리는 프론트엔드 부분만 포함되며, 최적화 계산은 별도의 백엔드(Flask API)를 통해 수행됩니다. API 엔드포인트는 `api.js` 파일 내에 정의되어 있습니다.

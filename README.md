@@ -38,7 +38,7 @@ Portfolio-Optimization-System-React/
 ├── docker-compose.yml        // Docker 배포를 위한 구성 파일 (옵션)
 ├── vercel.json               // Vercel 배포 설정 파일
 └── README.md                 // 본 문서
-'''
+plaintext'''
 
 
 > **참고:** 본 리포지토리는 프론트엔드 부분만 포함되며, 최적화 계산은 별도의 백엔드(Flask API)를 통해 수행된다. API 엔드포인트는 `api.js` 파일 내에 정의되어 있다.

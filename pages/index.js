@@ -194,7 +194,10 @@ export default function Home() {
             justifyContent: "center",
           }}
         >
-          <h1>FinOptima : Portfolio Optimization System</h1>
+          <h1>
+            FinOptima<br>
+            <small style="font-size: 60%; font-weight: normal;">: Portfolio Optimization System</small>
+          </h1>
           <div className="tooltip-container">
             <span className="info-icon">ℹ️</span>
             <div className="tooltip">

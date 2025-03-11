@@ -1,13 +1,7 @@
 // pages/index.js
 import { useState, useEffect } from "react";
 import { optimizePortfolio } from "../api";
-import {
-  PieChart,
-  Pie,
-  Cell,
-  ResponsiveContainer,
-  Tooltip,
-} from "recharts";
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 
 export default function Home() {
   const [PER, setPER] = useState("medium");
@@ -18,8 +12,9 @@ export default function Home() {
   const [Volatility, setVolatility] = useState("medium");
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [elapsedTime, setElapsedTime] = useState(0);
 
+  // 스톱워치 상태 및 업데이트
+  const [elapsedTime, setElapsedTime] = useState(0);
   const formatTime = (seconds) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
@@ -40,6 +35,7 @@ export default function Home() {
     return () => timer && clearInterval(timer);
   }, [loading]);
 
+  // 최적화 버튼 클릭 시 실행
   const handleOptimize = async () => {
     setLoading(true);
     try {
@@ -58,6 +54,7 @@ export default function Home() {
     setLoading(false);
   };
 
+  // 최적화 결과를 파이차트 데이터 형식으로 변환
   const pieData =
     result && result.optimal_portfolio
       ? Object.entries(result.optimal_portfolio).map(([name, value]) => ({
@@ -66,6 +63,7 @@ export default function Home() {
         }))
       : [];
 
+  // 파이차트에서 사용될 색상 목록
   const COLORS = [
     "#0088FE",
     "#00C49F",
@@ -77,6 +75,7 @@ export default function Home() {
     "#66FF66",
   ];
 
+  // 전체 레이아웃 스타일
   const mainContainerStyle = {
     display: "flex",
     flexWrap: "wrap",
@@ -87,6 +86,7 @@ export default function Home() {
     boxSizing: "border-box",
   };
 
+  // 왼쪽 폼 영역 스타일
   const formColumnStyle = {
     flex: "1",
     minWidth: "300px",
@@ -98,6 +98,7 @@ export default function Home() {
     textAlign: "center",
   };
 
+  // 오른쪽 결과 영역 스타일
   const resultColumnStyle = {
     flex: "1",
     minWidth: "300px",
@@ -108,6 +109,7 @@ export default function Home() {
     justifyContent: "center",
   };
 
+  // 폼 그룹 스타일
   const formGroupStyle = {
     marginBottom: "10px",
     width: "100%",
@@ -137,12 +139,26 @@ export default function Home() {
     transition: "background-color 0.3s, transform 0.3s",
   };
 
+  const resultUpperStyle = {
+    width: "100%",
+    height: "300px",
+  };
+
+  const allocationGridStyle = {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fit, minmax(100px, 1fr))",
+    gap: "10px",
+    marginTop: "20px",
+    textAlign: "center",
+  };
+
   const allocationItemStyle = {
     padding: "10px",
     border: "1px solid gray",
     borderRadius: "5px",
   };
 
+  // 로딩 오버레이 스타일
   const loadingOverlayStyle = {
     position: "fixed",
     top: 0,
@@ -162,7 +178,13 @@ export default function Home() {
       {loading && (
         <div style={loadingOverlayStyle}>
           <div className="spinner"></div>
-          <div style={{ marginTop: "20px", fontSize: "24px" }}>
+          <div
+            style={{
+              marginTop: "20px",
+              fontSize: "24px",
+              fontWeight: "bold",
+            }}
+          >
             {formatTime(elapsedTime)}
           </div>
           <div style={{ marginTop: "10px", fontSize: "18px" }}>
@@ -171,86 +193,224 @@ export default function Home() {
         </div>
       )}
 
+      {/* 왼쪽 폼 영역 */}
       <div style={formColumnStyle}>
-        <h1>
-          FinOptima<br />
-          <small style={{ fontSize: "60%", fontWeight: "normal" }}>
-            : Portfolio Optimization System
-          </small>
-        </h1>
-        <div className="tooltip-container">
-          <span className="info-icon">ℹ️</span>
-          <div className="tooltip">
-            이 시스템은 PER(주가수익비율), 배당수익률, 베타, RSI(상대강도지수),
-            거래량, 변동성과 같은 요소를 기반으로 포트폴리오를 최적화합니다.
-            <br />
-            매개변수를 조정하고 "Optimize"를 클릭하면 포트폴리오 배분을 확인할 수 있습니다.
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <h1>
+            FinOptima<br />
+            <small style={{ fontSize: "60%", fontWeight: "normal" }}>
+              : Portfolio Optimization System
+            </small>
+          </h1>
+          <div className="tooltip-container">
+            <span className="info-icon">ℹ️</span>
+            <div className="tooltip">
+              이 시스템은 PER(주가수익비율), 배당수익률, 베타, RSI(상대강도지수),
+              거래량, 변동성과 같은 다양한 요소를 기반으로 포트폴리오를 최적화합니다.
+              <br />
+              이러한 매개변수들을 조정하고 "Optimize" 버튼을 클릭하면
+              최적의 포트폴리오 배분을 확인할 수 있습니다.
+            </div>
           </div>
         </div>
-
-        {["PER", "Dividend Yield", "Beta", "RSI", "Volume", "Volatility"].map(
-          (item, idx) => (
-            <div key={idx} style={formGroupStyle}>
-              <label>
-                {item}:
-                <select
-                  value={eval(item.replace(" ", ""))}
-                  onChange={(e) =>
-                    eval(`set${item.replace(" ", "")}(e.target.value)`)
-                  }
-                  style={selectStyle}
-                >
-                  <option value="low">Low</option>
-                  <option value="medium">Medium</option>
-                  <option value="high">High</option>
-                </select>
-              </label>
-            </div>
-        )}
-
+        <div style={formGroupStyle}>
+          <label>
+            PER:
+            <select
+              value={PER}
+              onChange={(e) => setPER(e.target.value)}
+              style={selectStyle}
+            >
+              <option value="low">Low</option>
+              <option value="medium">Medium</option>
+              <option value="high">High</option>
+            </select>
+          </label>
+        </div>
+        <div style={formGroupStyle}>
+          <label>
+            Dividend Yield:
+            <select
+              value={DividendYield}
+              onChange={(e) => setDividendYield(e.target.value)}
+              style={selectStyle}
+            >
+              <option value="low">Low</option>
+              <option value="medium">Medium</option>
+              <option value="high">High</option>
+            </select>
+          </label>
+        </div>
+        <div style={formGroupStyle}>
+          <label>
+            Beta:
+            <select
+              value={Beta}
+              onChange={(e) => setBeta(e.target.value)}
+              style={selectStyle}
+            >
+              <option value="low">Low</option>
+              <option value="medium">Medium</option>
+              <option value="high">High</option>
+            </select>
+          </label>
+        </div>
+        <div style={formGroupStyle}>
+          <label>
+            RSI:
+            <select
+              value={RSI}
+              onChange={(e) => setRSI(e.target.value)}
+              style={selectStyle}
+            >
+              <option value="low">Low</option>
+              <option value="medium">Medium</option>
+              <option value="high">High</option>
+            </select>
+          </label>
+        </div>
+        <div style={formGroupStyle}>
+          <label>
+            Volume:
+            <select
+              value={volume}
+              onChange={(e) => setVolume(e.target.value)}
+              style={selectStyle}
+            >
+              <option value="low">Low</option>
+              <option value="medium">Medium</option>
+              <option value="high">High</option>
+            </select>
+          </label>
+        </div>
+        <div style={formGroupStyle}>
+          <label>
+            Volatility:
+            <select
+              value={Volatility}
+              onChange={(e) => setVolatility(e.target.value)}
+              style={selectStyle}
+            >
+              <option value="low">Low</option>
+              <option value="medium">Medium</option>
+              <option value="high">High</option>
+            </select>
+          </label>
+        </div>
         <button onClick={handleOptimize} style={buttonStyle}>
           Optimize
         </button>
       </div>
 
+      {/* 오른쪽 결과 영역 */}
       <div style={resultColumnStyle}>
+        <h2 style={{ textAlign: "center" }}>Optimization Result</h2>
         {result ? (
           <>
-            <ResponsiveContainer width="100%" height={400}>
-              <PieChart>
-                <Pie
-                  data={pieData}
-                  dataKey="value"
-                  nameKey="name"
-                  cx="50%"
-                  cy="50%"
-                  outerRadius={80}
-                  fill="#82ca9d"
-                  label
-                >
-                  {pieData.map((_, idx) => (
-                    <Cell key={`cell-${idx}`} fill={COLORS[idx % COLORS.length]} />
-                  ))}
-                </Pie>
-                <Tooltip />
-              </PieChart>
-            </ResponsiveContainer>
-
-            <div style={{ display: "flex", justifyContent: "center", flexWrap: "wrap" }}>
-              {pieData.map((entry) => (
-                <div key={entry.name} style={allocationItemStyle}>
-                  <strong>{entry.name}</strong>
-                  <br />
-                  {entry.value}%
-                </div>
-              ))}
+            <div style={resultUpperStyle}>
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={pieData}
+                    dataKey="value"
+                    nameKey="name"
+                    cx="50%"
+                    cy="50%"
+                    outerRadius={80}
+                    fill="#82ca9d"
+                    label
+                  >
+                    {pieData.map((entry, index) => (
+                      <Cell
+                        key={`cell-${index}`}
+                        fill={COLORS[index % COLORS.length]}
+                      />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                </PieChart>
+              </ResponsiveContainer>
             </div>
-        </div>
-
-        <button onClick={handleOptimize} style={buttonStyle}>
-          Optimize
-        </button>
+            <div style={allocationGridStyle}>
+              {Object.entries(result.optimal_portfolio).map(
+                ([ticker, percent]) => (
+                  <div key={ticker} style={allocationItemStyle}>
+                    <strong>{ticker}</strong>
+                    <br />
+                    {percent}%
+                  </div>
+                )
+              )}
+            </div>
+          </>
+        ) : (
+          <p style={{ textAlign: "center" }}>No optimization result yet.</p>
+        )}
       </div>
+
+      <style jsx>{`
+        .tooltip-container {
+          position: relative;
+          display: inline-block;
+        }
+        .info-icon {
+          cursor: pointer;
+          margin-left: 10px;
+          font-size: 20px;
+        }
+        .tooltip {
+          visibility: hidden;
+          width: 300px;
+          background-color: #555;
+          color: #fff;
+          text-align: center;
+          border-radius: 6px;
+          padding: 8px 10px;
+          position: absolute;
+          z-index: 1;
+          bottom: 125%;
+          left: 50%;
+          transform: translateX(-50%);
+          opacity: 0;
+          transition: opacity 0.3s;
+        }
+        .tooltip::after {
+          content: "";
+          position: absolute;
+          top: 100%;
+          left: 50%;
+          transform: translateX(-50%);
+          border-width: 5px;
+          border-style: solid;
+          border-color: #555 transparent transparent transparent;
+        }
+        .tooltip-container:hover .tooltip {
+          visibility: visible;
+          opacity: 1;
+        }
+        @keyframes spin {
+          0% {
+            transform: rotate(0deg);
+          }
+          100% {
+            transform: rotate(360deg);
+          }
+        }
+        .spinner {
+          border: 8px solid rgba(255, 255, 255, 0.2);
+          border-top: 8px solid #fff;
+          border-radius: 50%;
+          width: 60px;
+          height: 60px;
+          animation: spin 1s linear infinite;
+        }
+      `}</style>
     </div>
   );
 }

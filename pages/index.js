@@ -188,7 +188,7 @@ export default function Home() {
             {formatTime(elapsedTime)}
           </div>
           <div style={{ marginTop: "10px", fontSize: "18px" }}>
-            로딩에서 약 2분 소요
+            최대 약 2분 소요
           </div>
         </div>
       )}

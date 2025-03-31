@@ -1,3 +1,4 @@
+// --- Frontend (pages/forecast/[ticker].jsx) ---
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import {
@@ -59,7 +60,7 @@ export default function TickerForecast() {
       setAnimatedData((prev) => [...prev, fullData[index]]);
       index++;
       if (index >= fullData.length) clearInterval(interval);
-    }, 1000 / fullData.length); // 전체 1초 안에
+    }, 1000 / fullData.length);
 
     return () => clearInterval(interval);
   }, [fullData]);

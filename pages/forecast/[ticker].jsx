@@ -1,4 +1,3 @@
-// pages/forecast/[ticker].jsx
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import {
@@ -43,7 +42,7 @@ export default function TickerForecast() {
     fetchForecast();
   }, [ticker]);
 
-  // 애니메이션: 데이터 포인트를 1개씩 추가하면서 그리기
+  // 애니메이션 추가
   useEffect(() => {
     if (fullData.length === 0) return;
 
@@ -52,8 +51,7 @@ export default function TickerForecast() {
       setAnimatedData((prev) => [...prev, fullData[index]]);
       index++;
       if (index >= fullData.length) clearInterval(interval);
-    }, 200); // 0.2초 간격으로 추가
-
+    }, 100);
     return () => clearInterval(interval);
   }, [fullData]);
 
@@ -89,10 +87,20 @@ export default function TickerForecast() {
             <Line
               type="monotone"
               dataKey="price"
+              stroke="#ffffff"
+              strokeWidth={2}
+              dot={false}
+              isAnimationActive={false}
+              data={animatedData.filter((d) => d.type === "actual")}
+            />
+            <Line
+              type="monotone"
+              dataKey="price"
               stroke="#00C49F"
               strokeWidth={3}
-              dot={false}
-              isAnimationActive={false} // 직접 애니메이션 구현하므로 false
+              dot={{ r: 2 }}
+              isAnimationActive={false}
+              data={animatedData.filter((d) => d.type === "forecast")}
             />
           </LineChart>
         </ResponsiveContainer>

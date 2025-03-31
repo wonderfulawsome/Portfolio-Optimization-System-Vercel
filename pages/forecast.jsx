@@ -1,53 +1,34 @@
-// pages/forecast.jsx
-import { useState } from "react";
 import { useRouter } from "next/router";
 
-export default function ForecastPage() {
-  const [ticker, setTicker] = useState("");
+export default function Forecast() {
   const router = useRouter();
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (ticker.trim() !== "") {
-      router.push(`/forecast/${ticker.toUpperCase()}`);
-    }
+  const handleClick = (ticker) => {
+    router.push(`/forecast/${ticker}`);
   };
 
-  return (
-    <div style={{ padding: "40px", textAlign: "center" }}>
-      <h1>📈 Stock Price Forecast</h1>
-      <p>Select a stock ticker to predict its future prices</p>
+  const tickers = [
+    { name: "Nasdaq 100", symbol: "QQQ" },
+    { name: "SOXX", symbol: "SOXX" },
+    { name: "S&P 500", symbol: "SPY" },
+    { name: "Dow Jones", symbol: "DIA" },
+    { name: "Bitcoin", symbol: "BTC-USD" },
+  ];
 
-      <form onSubmit={handleSubmit} style={{ marginTop: "20px" }}>
-        <input
-          type="text"
-          placeholder="Enter Ticker (e.g. AAPL)"
-          value={ticker}
-          onChange={(e) => setTicker(e.target.value)}
-          style={{
-            padding: "10px",
-            fontSize: "16px",
-            borderRadius: "5px",
-            border: "1px solid #ccc",
-            width: "200px",
-            marginRight: "10px",
-          }}
-        />
-        <button
-          type="submit"
-          style={{
-            padding: "10px 20px",
-            fontSize: "16px",
-            borderRadius: "5px",
-            backgroundColor: "#007bff",
-            color: "white",
-            border: "none",
-            cursor: "pointer",
-          }}
-        >
-          Predict
-        </button>
-      </form>
+  return (
+    <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center px-4">
+      <h1 className="text-4xl font-semibold mb-10 text-gray-900">Choose Asset to Forecast</h1>
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 w-full max-w-3xl">
+        {tickers.map((item) => (
+          <button
+            key={item.symbol}
+            onClick={() => handleClick(item.symbol)}
+            className="bg-white text-gray-900 rounded-2xl shadow-md px-8 py-6 text-lg font-medium hover:bg-gray-200 transition transform hover:-translate-y-1"
+          >
+            {item.name}
+          </button>
+        ))}
+      </div>
     </div>
   );
 }

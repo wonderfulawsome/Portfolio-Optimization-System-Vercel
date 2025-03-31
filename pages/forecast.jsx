@@ -12,7 +12,7 @@ export default function Forecast() {
     { name: "SOXX", symbol: "SOXX" },
     { name: "S&P 500", symbol: "SPY" },
     { name: "Dow Jones", symbol: "DIA" },
-    { name: "Bitcoin", symbol: "BTC-USD" },
+    { name: "Bitcoin", symbol: "IBIT" },
   ];
 
   return (

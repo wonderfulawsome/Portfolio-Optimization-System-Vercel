@@ -76,19 +76,6 @@ export default function TickerForecast() {
       }, {})
   );
 
-  // 실제 데이터의 마지막 점과 예측 데이터의 첫 점을 연결하는 다리 데이터 계산
-  const actualPoints = fullData.filter((item) => item.type === "actual");
-  const forecastPoints = fullData.filter((item) => item.type === "forecast");
-  let bridgeData = [];
-  if (actualPoints.length > 0 && forecastPoints.length > 0) {
-    const lastActual = actualPoints[actualPoints.length - 1];
-    const firstForecast = forecastPoints[0];
-    bridgeData = [
-      { date: lastActual.date, value: lastActual.price },
-      { date: firstForecast.date, value: firstForecast.price },
-    ];
-  }
-
   return (
     <div
       style={{
@@ -117,20 +104,7 @@ export default function TickerForecast() {
               labelStyle={{ color: "#fff" }}
               itemStyle={{ color: "#fff" }}
             />
-            <Legend
-              verticalAlign="top"
-              wrapperStyle={{ color: "#fff", paddingBottom: "20px" }}
-            />
-            {bridgeData.length > 0 && (
-              <Line
-                data={bridgeData}
-                dataKey="value"
-                stroke="#FFFFFF"
-                strokeWidth={3}
-                dot={false}
-                isAnimationActive={false}
-              />
-            )}
+            <Legend verticalAlign="top" wrapperStyle={{ color: "#fff", paddingBottom: "20px" }} />
             <Line
               type="monotone"
               dataKey="actual"

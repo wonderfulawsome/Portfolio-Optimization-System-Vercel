@@ -31,8 +31,8 @@ export default function TickerForecast() {
           }
         );
         const json = await res.json();
-        setFullData(json.forecast);
-        setAnimatedData([]);
+        setFullData(json.forecast); // 전체 데이터 (기존 + 예측 포함)
+        setAnimatedData([]); // 초기화
       } catch (err) {
         console.error("예측 요청 실패:", err);
       }
@@ -42,7 +42,7 @@ export default function TickerForecast() {
     fetchForecast();
   }, [ticker]);
 
-  // 애니메이션 추가
+  // 빠른 애니메이션 적용: 약 1초 안에 전체 표시
   useEffect(() => {
     if (fullData.length === 0) return;
 
@@ -51,7 +51,7 @@ export default function TickerForecast() {
       setAnimatedData((prev) => [...prev, fullData[index]]);
       index++;
       if (index >= fullData.length) clearInterval(interval);
-    }, 100);
+    }, 25); // 빠르게 그리기
     return () => clearInterval(interval);
   }, [fullData]);
 
@@ -87,20 +87,10 @@ export default function TickerForecast() {
             <Line
               type="monotone"
               dataKey="price"
-              stroke="#ffffff"
-              strokeWidth={2}
-              dot={false}
-              isAnimationActive={false}
-              data={animatedData.filter((d) => d.type === "actual")}
-            />
-            <Line
-              type="monotone"
-              dataKey="price"
               stroke="#00C49F"
               strokeWidth={3}
-              dot={{ r: 2 }}
-              isAnimationActive={false}
-              data={animatedData.filter((d) => d.type === "forecast")}
+              dot={false}
+              isAnimationActive={false} // 수동 애니메이션
             />
           </LineChart>
         </ResponsiveContainer>

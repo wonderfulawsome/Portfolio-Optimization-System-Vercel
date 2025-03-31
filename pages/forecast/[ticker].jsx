@@ -17,6 +17,7 @@ export default function TickerForecast() {
   const [animatedData, setAnimatedData] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  // API 호출
   useEffect(() => {
     if (!ticker) return;
 
@@ -31,14 +32,7 @@ export default function TickerForecast() {
           }
         );
         const json = await res.json();
-
-        // 실제 데이터와 예측 데이터에 구분 플래그 추가
-        const processed = json.forecast.map((d) => ({
-          ...d,
-          actual: d.actual ?? false,
-        }));
-
-        setFullData(processed);
+        setFullData(json.forecast);
         setAnimatedData([]);
       } catch (err) {
         console.error("예측 요청 실패:", err);
@@ -54,14 +48,20 @@ export default function TickerForecast() {
     if (fullData.length === 0) return;
 
     let index = 0;
+    const totalDuration = 1000; // 1초
+    const intervalTime = totalDuration / fullData.length;
+
     const interval = setInterval(() => {
       setAnimatedData((prev) => [...prev, fullData[index]]);
       index++;
       if (index >= fullData.length) clearInterval(interval);
-    }, 1000 / fullData.length);
+    }, intervalTime);
 
     return () => clearInterval(interval);
   }, [fullData]);
+
+  const actualLine = animatedData.filter((d) => d.type === "actual");
+  const forecastLine = animatedData.filter((d) => d.type === "forecast");
 
   return (
     <div
@@ -83,38 +83,35 @@ export default function TickerForecast() {
         <p>Loading prediction chart...</p>
       ) : (
         <ResponsiveContainer width="100%" height={400}>
-          <LineChart data={animatedData}>
+          <LineChart>
             <CartesianGrid strokeDasharray="3 3" stroke="#444" />
             <XAxis dataKey="date" stroke="#ccc" />
-            <YAxis stroke="#ccc" domain={['dataMin - 5', 'dataMax + 5']} />
+            <YAxis stroke="#ccc" domain={['dataMin', 'dataMax']} />
             <Tooltip
-              formatter={(value, name, props) =>
-                [`${value}`, props.payload.actual ? "Actual" : "Forecast"]
-              }
               contentStyle={{ backgroundColor: "#222", border: "none" }}
               labelStyle={{ color: "#fff" }}
               itemStyle={{ color: "#fff" }}
             />
-            {/* 실제 데이터 라인 */}
+
             <Line
               type="monotone"
-              dataKey={(d) => (d.actual ? d.price : null)}
+              data={actualLine}
+              dataKey="price"
               stroke="#ffffff"
-              strokeWidth={2.5}
+              strokeWidth={3}
               dot={false}
               isAnimationActive={false}
-              name="Actual"
             />
-            {/* 예측 데이터 라인 */}
+
             <Line
               type="monotone"
-              dataKey={(d) => (!d.actual ? d.price : null)}
+              data={forecastLine}
+              dataKey="price"
               stroke="#00CFFF"
-              strokeWidth={2.5}
-              dot={false}
+              strokeWidth={3}
               strokeDasharray="5 5"
+              dot={false}
               isAnimationActive={false}
-              name="Forecast"
             />
           </LineChart>
         </ResponsiveContainer>

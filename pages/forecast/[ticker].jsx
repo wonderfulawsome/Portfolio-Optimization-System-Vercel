@@ -46,7 +46,7 @@ export default function TickerForecast() {
     fetchForecast();
   }, [ticker]);
 
-  // 애니메이션 효과로 데이터 순차 추가
+  // 애니메이션 효과
   useEffect(() => {
     if (fullData.length === 0) return;
     let index = 0;
@@ -58,7 +58,7 @@ export default function TickerForecast() {
     return () => clearInterval(interval);
   }, [fullData]);
 
-  // 실제와 예측 데이터를 날짜별로 병합
+  // undefined 항목 제거 후 실제와 예측 데이터를 병합
   const combinedData = Object.values(
     animatedData
       .filter((item) => item && item.date)
@@ -74,13 +74,20 @@ export default function TickerForecast() {
         }
         return acc;
       }, {})
-  ).sort((a, b) => new Date(a.date) - new Date(b.date));
+  );
 
-  // 하나의 "price" 필드로 실제 값이 있으면 실제, 없으면 예측값 사용
-  const mergedData = combinedData.map((item) => ({
-    date: item.date,
-    price: item.actual !== null ? item.actual : item.forecast,
-  }));
+  // 실제 데이터의 마지막 점과 예측 데이터의 첫 점을 연결하는 다리 데이터 계산
+  const actualPoints = fullData.filter((item) => item.type === "actual");
+  const forecastPoints = fullData.filter((item) => item.type === "forecast");
+  let bridgeData = [];
+  if (actualPoints.length > 0 && forecastPoints.length > 0) {
+    const lastActual = actualPoints[actualPoints.length - 1];
+    const firstForecast = forecastPoints[0];
+    bridgeData = [
+      { date: lastActual.date, value: lastActual.price },
+      { date: firstForecast.date, value: firstForecast.price },
+    ];
+  }
 
   return (
     <div
@@ -101,7 +108,7 @@ export default function TickerForecast() {
         <p>Loading prediction chart...</p>
       ) : (
         <ResponsiveContainer width="100%" height={400}>
-          <LineChart data={mergedData}>
+          <LineChart data={combinedData}>
             <CartesianGrid strokeDasharray="3 3" stroke="#444" />
             <XAxis dataKey="date" stroke="#ccc" />
             <YAxis stroke="#ccc" domain={["auto", "auto"]} />
@@ -110,13 +117,36 @@ export default function TickerForecast() {
               labelStyle={{ color: "#fff" }}
               itemStyle={{ color: "#fff" }}
             />
-            <Legend verticalAlign="top" wrapperStyle={{ color: "#fff", paddingBottom: "20px" }} />
+            <Legend
+              verticalAlign="top"
+              wrapperStyle={{ color: "#fff", paddingBottom: "20px" }}
+            />
+            {bridgeData.length > 0 && (
+              <Line
+                data={bridgeData}
+                dataKey="value"
+                stroke="#FFFFFF"
+                strokeWidth={3}
+                dot={false}
+                isAnimationActive={false}
+              />
+            )}
             <Line
               type="monotone"
-              dataKey="price"
-              name="Price"
+              dataKey="actual"
+              name="Actual"
               stroke="#FFFFFF"
               strokeWidth={3}
+              dot={false}
+              isAnimationActive={false}
+            />
+            <Line
+              type="monotone"
+              dataKey="forecast"
+              name="Forecast"
+              stroke="#00C8FF"
+              strokeWidth={3}
+              strokeDasharray="6 3"
               dot={false}
               isAnimationActive={false}
             />

@@ -8,6 +8,7 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
+  Legend,
 } from "recharts";
 
 export default function TickerForecast() {
@@ -50,7 +51,6 @@ export default function TickerForecast() {
     fetchForecast();
   }, [ticker]);
 
-  // 애니메이션 효과: 전체 데이터를 빠르게 1초 내에 그림
   useEffect(() => {
     if (fullData.length === 0) return;
 
@@ -59,7 +59,7 @@ export default function TickerForecast() {
       setAnimatedData((prev) => [...prev, fullData[index]]);
       index++;
       if (index >= fullData.length) clearInterval(interval);
-    }, 1000 / fullData.length); // 전체를 1초 안에
+    }, 1000 / fullData.length); // 전체 1초 안에
 
     return () => clearInterval(interval);
   }, [fullData]);
@@ -87,31 +87,43 @@ export default function TickerForecast() {
         <p>Loading prediction chart...</p>
       ) : (
         <ResponsiveContainer width="100%" height={400}>
-          <LineChart data={animatedData}>
+          <LineChart>
             <CartesianGrid strokeDasharray="3 3" stroke="#444" />
-            <XAxis dataKey="date" stroke="#ccc" />
+            <XAxis
+              dataKey="date"
+              stroke="#ccc"
+              type="category"
+              allowDuplicatedCategory={false}
+              interval="preserveStartEnd"
+            />
             <YAxis stroke="#ccc" domain={["dataMin", "dataMax"]} />
             <Tooltip
               contentStyle={{ backgroundColor: "#222", border: "none" }}
               labelStyle={{ color: "#fff" }}
               itemStyle={{ color: "#fff" }}
             />
+            <Legend
+              verticalAlign="top"
+              wrapperStyle={{ color: "#fff", paddingBottom: "20px" }}
+            />
             <Line
+              data={actualData}
               type="monotone"
               dataKey="price"
-              data={actualData}
-              stroke="#ffffff"
+              name="Actual"
+              stroke="#FFFFFF"
               strokeWidth={3}
               dot={false}
               isAnimationActive={false}
             />
             <Line
+              data={forecastData}
               type="monotone"
               dataKey="price"
-              data={forecastData}
+              name="Forecast"
               stroke="#00C8FF"
               strokeWidth={3}
-              strokeDasharray="5 5"
+              strokeDasharray="6 3"
               dot={false}
               isAnimationActive={false}
             />

@@ -31,7 +31,14 @@ export default function TickerForecast() {
           }
         );
         const json = await res.json();
-        setFullData(json.forecast);
+
+        // 실제 데이터와 예측 데이터에 구분 플래그 추가
+        const processed = json.forecast.map((d) => ({
+          ...d,
+          actual: d.actual ?? false,
+        }));
+
+        setFullData(processed);
         setAnimatedData([]);
       } catch (err) {
         console.error("예측 요청 실패:", err);
@@ -42,7 +49,7 @@ export default function TickerForecast() {
     fetchForecast();
   }, [ticker]);
 
-  // 애니메이션: 1초 내에 모두 나타나도록
+  // 애니메이션
   useEffect(() => {
     if (fullData.length === 0) return;
 
@@ -51,7 +58,7 @@ export default function TickerForecast() {
       setAnimatedData((prev) => [...prev, fullData[index]]);
       index++;
       if (index >= fullData.length) clearInterval(interval);
-    }, 1000 / fullData.length); // 전체 1초 소요
+    }, 1000 / fullData.length);
 
     return () => clearInterval(interval);
   }, [fullData]);
@@ -81,17 +88,33 @@ export default function TickerForecast() {
             <XAxis dataKey="date" stroke="#ccc" />
             <YAxis stroke="#ccc" domain={['dataMin - 5', 'dataMax + 5']} />
             <Tooltip
+              formatter={(value, name, props) =>
+                [`${value}`, props.payload.actual ? "Actual" : "Forecast"]
+              }
               contentStyle={{ backgroundColor: "#222", border: "none" }}
               labelStyle={{ color: "#fff" }}
               itemStyle={{ color: "#fff" }}
             />
+            {/* 실제 데이터 라인 */}
             <Line
               type="monotone"
-              dataKey="price"
-              stroke="#00C49F"
-              strokeWidth={3}
+              dataKey={(d) => (d.actual ? d.price : null)}
+              stroke="#ffffff"
+              strokeWidth={2.5}
               dot={false}
               isAnimationActive={false}
+              name="Actual"
+            />
+            {/* 예측 데이터 라인 */}
+            <Line
+              type="monotone"
+              dataKey={(d) => (!d.actual ? d.price : null)}
+              stroke="#00CFFF"
+              strokeWidth={2.5}
+              dot={false}
+              strokeDasharray="5 5"
+              isAnimationActive={false}
+              name="Forecast"
             />
           </LineChart>
         </ResponsiveContainer>

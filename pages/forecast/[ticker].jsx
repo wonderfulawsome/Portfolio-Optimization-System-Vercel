@@ -34,6 +34,7 @@ export default function TickerForecast() {
           }
         );
         const json = await res.json();
+
         if (!json.forecast || !Array.isArray(json.forecast)) {
           console.error("예측 데이터 없음:", json);
           return;
@@ -63,8 +64,8 @@ export default function TickerForecast() {
     return () => clearInterval(interval);
   }, [fullData]);
 
-  const actualData = animatedData.filter((d) => d?.actual === true);
-  const forecastData = animatedData.filter((d) => d?.actual === false);
+  const actualData = animatedData.filter((d) => d?.type === "actual");
+  const forecastData = animatedData.filter((d) => d?.type === "forecast");
 
   return (
     <div
@@ -86,7 +87,7 @@ export default function TickerForecast() {
         <p>Loading prediction chart...</p>
       ) : (
         <ResponsiveContainer width="100%" height={400}>
-          <LineChart>
+          <LineChart data={animatedData}>
             <CartesianGrid strokeDasharray="3 3" stroke="#444" />
             <XAxis dataKey="date" stroke="#ccc" />
             <YAxis stroke="#ccc" domain={["auto", "auto"]} />
@@ -100,7 +101,6 @@ export default function TickerForecast() {
               wrapperStyle={{ color: "#fff", paddingBottom: "20px" }}
             />
             <Line
-              data={actualData}
               type="monotone"
               dataKey="price"
               name="Actual"
@@ -110,7 +110,6 @@ export default function TickerForecast() {
               isAnimationActive={false}
             />
             <Line
-              data={forecastData}
               type="monotone"
               dataKey="price"
               name="Forecast"

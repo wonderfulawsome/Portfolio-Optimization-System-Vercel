@@ -31,10 +31,7 @@ export default function TickerForecast() {
           }
         );
         const json = await res.json();
-        const sorted = json.forecast.sort(
-          (a, b) => new Date(a.date) - new Date(b.date)
-        );
-        setFullData(sorted); // 날짜 오름차순
+        setFullData(json.forecast);
         setAnimatedData([]);
       } catch (err) {
         console.error("예측 요청 실패:", err);
@@ -45,19 +42,16 @@ export default function TickerForecast() {
     fetchForecast();
   }, [ticker]);
 
-  // 애니메이션: 전체 데이터를 1초 안에 나타나도록
+  // 애니메이션: 1초 내에 모두 나타나도록
   useEffect(() => {
     if (fullData.length === 0) return;
 
     let index = 0;
-    const totalTime = 1000; // 1초
-    const intervalTime = totalTime / fullData.length;
-
     const interval = setInterval(() => {
       setAnimatedData((prev) => [...prev, fullData[index]]);
       index++;
       if (index >= fullData.length) clearInterval(interval);
-    }, intervalTime);
+    }, 1000 / fullData.length); // 전체 1초 소요
 
     return () => clearInterval(interval);
   }, [fullData]);
@@ -85,7 +79,7 @@ export default function TickerForecast() {
           <LineChart data={animatedData}>
             <CartesianGrid strokeDasharray="3 3" stroke="#444" />
             <XAxis dataKey="date" stroke="#ccc" />
-            <YAxis stroke="#ccc" />
+            <YAxis stroke="#ccc" domain={['dataMin - 5', 'dataMax + 5']} />
             <Tooltip
               contentStyle={{ backgroundColor: "#222", border: "none" }}
               labelStyle={{ color: "#fff" }}

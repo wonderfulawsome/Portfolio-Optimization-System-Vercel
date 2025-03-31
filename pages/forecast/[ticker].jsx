@@ -13,15 +13,16 @@ import {
 export default function TickerForecast() {
   const router = useRouter();
   const { ticker } = router.query;
+
   const [fullData, setFullData] = useState([]);
   const [animatedData, setAnimatedData] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // 데이터 요청
   useEffect(() => {
     if (!ticker) return;
 
     const fetchForecast = async () => {
+      setLoading(true);
       try {
         const res = await fetch(
           "https://finoptima-price-forecast-render.onrender.com/forecast",
@@ -33,12 +34,12 @@ export default function TickerForecast() {
         );
         const json = await res.json();
 
-        // 날짜 오름차순 정렬
-        const sorted = json.forecast.sort(
-          (a, b) => new Date(a.date) - new Date(b.date)
-        );
+        if (!json.forecast || !Array.isArray(json.forecast)) {
+          console.error("예측 데이터 없음:", json);
+          return;
+        }
 
-        setFullData(sorted);
+        setFullData(json.forecast);
         setAnimatedData([]);
       } catch (err) {
         console.error("예측 요청 실패:", err);
@@ -49,7 +50,7 @@ export default function TickerForecast() {
     fetchForecast();
   }, [ticker]);
 
-  // 애니메이션 처리
+  // 애니메이션 효과: 전체 데이터를 빠르게 1초 내에 그림
   useEffect(() => {
     if (fullData.length === 0) return;
 
@@ -58,10 +59,13 @@ export default function TickerForecast() {
       setAnimatedData((prev) => [...prev, fullData[index]]);
       index++;
       if (index >= fullData.length) clearInterval(interval);
-    }, 1000 / fullData.length); // 전체 1초 이내에 완성
+    }, 1000 / fullData.length); // 전체를 1초 안에
 
     return () => clearInterval(interval);
   }, [fullData]);
+
+  const actualData = animatedData.filter((d) => d?.type === "actual");
+  const forecastData = animatedData.filter((d) => d?.type === "forecast");
 
   return (
     <div
@@ -86,32 +90,30 @@ export default function TickerForecast() {
           <LineChart data={animatedData}>
             <CartesianGrid strokeDasharray="3 3" stroke="#444" />
             <XAxis dataKey="date" stroke="#ccc" />
-            <YAxis stroke="#ccc" />
+            <YAxis stroke="#ccc" domain={["dataMin", "dataMax"]} />
             <Tooltip
               contentStyle={{ backgroundColor: "#222", border: "none" }}
               labelStyle={{ color: "#fff" }}
               itemStyle={{ color: "#fff" }}
             />
-            {/* 실제 데이터 (실선, 흰색) */}
             <Line
               type="monotone"
               dataKey="price"
+              data={actualData}
               stroke="#ffffff"
-              strokeWidth={2}
+              strokeWidth={3}
               dot={false}
               isAnimationActive={false}
-              data={animatedData.filter((d) => d.type === "actual")}
             />
-            {/* 예측 데이터 (점선, 하늘색) */}
             <Line
               type="monotone"
               dataKey="price"
-              stroke="#00CFFF"
-              strokeWidth={2}
-              dot={false}
+              data={forecastData}
+              stroke="#00C8FF"
+              strokeWidth={3}
               strokeDasharray="5 5"
+              dot={false}
               isAnimationActive={false}
-              data={animatedData.filter((d) => d.type === "forecast")}
             />
           </LineChart>
         </ResponsiveContainer>

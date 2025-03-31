@@ -15,7 +15,6 @@ import {
 export default function TickerForecast() {
   const router = useRouter();
   const { ticker } = router.query;
-
   const [fullData, setFullData] = useState([]);
   const [animatedData, setAnimatedData] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -60,20 +59,22 @@ export default function TickerForecast() {
     return () => clearInterval(interval);
   }, [fullData]);
 
-  // 날짜별로 실제와 예측 데이터를 병합
+  // undefined 항목 제거 후 실제와 예측 데이터를 병합
   const combinedData = Object.values(
-    animatedData.reduce((acc, cur) => {
-      const { date, type, price } = cur;
-      if (!acc[date]) {
-        acc[date] = { date, actual: null, forecast: null };
-      }
-      if (type === "actual") {
-        acc[date].actual = price;
-      } else if (type === "forecast") {
-        acc[date].forecast = price;
-      }
-      return acc;
-    }, {})
+    animatedData
+      .filter((item) => item && item.date)
+      .reduce((acc, cur) => {
+        const { date, type, price } = cur;
+        if (!acc[date]) {
+          acc[date] = { date, actual: null, forecast: null };
+        }
+        if (type === "actual") {
+          acc[date].actual = price;
+        } else if (type === "forecast") {
+          acc[date].forecast = price;
+        }
+        return acc;
+      }, {})
   );
 
   // 실제 데이터의 마지막 날짜를 경계로 사용
@@ -108,10 +109,7 @@ export default function TickerForecast() {
               labelStyle={{ color: "#fff" }}
               itemStyle={{ color: "#fff" }}
             />
-            <Legend
-              verticalAlign="top"
-              wrapperStyle={{ color: "#fff", paddingBottom: "20px" }}
-            />
+            <Legend verticalAlign="top" wrapperStyle={{ color: "#fff", paddingBottom: "20px" }} />
             {boundaryDate && (
               <ReferenceLine
                 x={boundaryDate}

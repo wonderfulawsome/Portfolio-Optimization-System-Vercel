@@ -9,7 +9,6 @@ import {
   Tooltip,
   ResponsiveContainer,
   Legend,
-  ReferenceLine,
 } from "recharts";
 
 export default function TickerForecast() {
@@ -47,7 +46,7 @@ export default function TickerForecast() {
     fetchForecast();
   }, [ticker]);
 
-  // 애니메이션 효과
+  // 애니메이션 효과로 데이터 순차 추가
   useEffect(() => {
     if (fullData.length === 0) return;
     let index = 0;
@@ -59,7 +58,7 @@ export default function TickerForecast() {
     return () => clearInterval(interval);
   }, [fullData]);
 
-  // undefined 항목 제거 후 실제와 예측 데이터를 병합
+  // 실제와 예측 데이터를 날짜별로 병합
   const combinedData = Object.values(
     animatedData
       .filter((item) => item && item.date)
@@ -75,11 +74,13 @@ export default function TickerForecast() {
         }
         return acc;
       }, {})
-  );
+  ).sort((a, b) => new Date(a.date) - new Date(b.date));
 
-  // 실제 데이터의 마지막 날짜를 경계로 사용
-  const actualData = fullData.filter((item) => item.type === "actual");
-  const boundaryDate = actualData.length > 0 ? actualData[actualData.length - 1].date : null;
+  // 하나의 "price" 필드로 실제 값이 있으면 실제, 없으면 예측값 사용
+  const mergedData = combinedData.map((item) => ({
+    date: item.date,
+    price: item.actual !== null ? item.actual : item.forecast,
+  }));
 
   return (
     <div
@@ -100,7 +101,7 @@ export default function TickerForecast() {
         <p>Loading prediction chart...</p>
       ) : (
         <ResponsiveContainer width="100%" height={400}>
-          <LineChart data={combinedData}>
+          <LineChart data={mergedData}>
             <CartesianGrid strokeDasharray="3 3" stroke="#444" />
             <XAxis dataKey="date" stroke="#ccc" />
             <YAxis stroke="#ccc" domain={["auto", "auto"]} />
@@ -110,29 +111,12 @@ export default function TickerForecast() {
               itemStyle={{ color: "#fff" }}
             />
             <Legend verticalAlign="top" wrapperStyle={{ color: "#fff", paddingBottom: "20px" }} />
-            {boundaryDate && (
-              <ReferenceLine
-                x={boundaryDate}
-                stroke="#FF0000"
-                label={{ value: "Forecast", position: "top", fill: "#FF0000" }}
-              />
-            )}
             <Line
               type="monotone"
-              dataKey="actual"
-              name="Actual"
+              dataKey="price"
+              name="Price"
               stroke="#FFFFFF"
               strokeWidth={3}
-              dot={false}
-              isAnimationActive={false}
-            />
-            <Line
-              type="monotone"
-              dataKey="forecast"
-              name="Forecast"
-              stroke="#00C8FF"
-              strokeWidth={3}
-              strokeDasharray="6 3"
               dot={false}
               isAnimationActive={false}
             />

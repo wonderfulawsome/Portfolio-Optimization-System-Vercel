@@ -1,4 +1,3 @@
-// --- Frontend (pages/forecast/[ticker].jsx) ---
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import {
@@ -35,7 +34,6 @@ export default function TickerForecast() {
           }
         );
         const json = await res.json();
-
         if (!json.forecast || !Array.isArray(json.forecast)) {
           console.error("예측 데이터 없음:", json);
           return;
@@ -60,13 +58,13 @@ export default function TickerForecast() {
       setAnimatedData((prev) => [...prev, fullData[index]]);
       index++;
       if (index >= fullData.length) clearInterval(interval);
-    }, 1000 / fullData.length);
+    }, 1000 / fullData.length); // 1초 이내 전체 그리기
 
     return () => clearInterval(interval);
   }, [fullData]);
 
-  const actualData = animatedData.filter((d) => d?.type === "actual");
-  const forecastData = animatedData.filter((d) => d?.type === "forecast");
+  const actualData = animatedData.filter((d) => d?.actual === true);
+  const forecastData = animatedData.filter((d) => d?.actual === false);
 
   return (
     <div
@@ -90,14 +88,8 @@ export default function TickerForecast() {
         <ResponsiveContainer width="100%" height={400}>
           <LineChart>
             <CartesianGrid strokeDasharray="3 3" stroke="#444" />
-            <XAxis
-              dataKey="date"
-              stroke="#ccc"
-              type="category"
-              allowDuplicatedCategory={false}
-              interval="preserveStartEnd"
-            />
-            <YAxis stroke="#ccc" domain={["dataMin", "dataMax"]} />
+            <XAxis dataKey="date" stroke="#ccc" />
+            <YAxis stroke="#ccc" domain={["auto", "auto"]} />
             <Tooltip
               contentStyle={{ backgroundColor: "#222", border: "none" }}
               labelStyle={{ color: "#fff" }}

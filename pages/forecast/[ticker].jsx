@@ -19,6 +19,7 @@ export default function TickerForecast() {
   const [animatedData, setAnimatedData] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  // Fetch 예측 데이터
   useEffect(() => {
     if (!ticker) return;
 
@@ -39,9 +40,7 @@ export default function TickerForecast() {
           console.error("예측 데이터 없음:", json);
           return;
         }
-
         setFullData(json.forecast);
-        setAnimatedData([]);
       } catch (err) {
         console.error("예측 요청 실패:", err);
       }
@@ -51,6 +50,7 @@ export default function TickerForecast() {
     fetchForecast();
   }, [ticker]);
 
+  // 애니메이션 효과로 데이터를 점진적으로 추가
   useEffect(() => {
     if (fullData.length === 0) return;
 
@@ -59,13 +59,26 @@ export default function TickerForecast() {
       setAnimatedData((prev) => [...prev, fullData[index]]);
       index++;
       if (index >= fullData.length) clearInterval(interval);
-    }, 1000 / fullData.length); // 1초 이내 전체 그리기
+    }, 1000 / fullData.length); // 1초 이내에 전체 데이터 그리기
 
     return () => clearInterval(interval);
   }, [fullData]);
 
-  const actualData = animatedData.filter((d) => d?.type === "actual");
-  const forecastData = animatedData.filter((d) => d?.type === "forecast");
+  // 날짜별로 실제와 예측 데이터를 병합 (예: { date, actual, forecast })
+  const combinedData = Object.values(
+    animatedData.reduce((acc, cur) => {
+      const { date, type, price } = cur;
+      if (!acc[date]) {
+        acc[date] = { date, actual: null, forecast: null };
+      }
+      if (type === "actual") {
+        acc[date].actual = price;
+      } else if (type === "forecast") {
+        acc[date].forecast = price;
+      }
+      return acc;
+    }, {})
+  );
 
   return (
     <div
@@ -87,7 +100,7 @@ export default function TickerForecast() {
         <p>Loading prediction chart...</p>
       ) : (
         <ResponsiveContainer width="100%" height={400}>
-          <LineChart data={animatedData}>
+          <LineChart data={combinedData}>
             <CartesianGrid strokeDasharray="3 3" stroke="#444" />
             <XAxis dataKey="date" stroke="#ccc" />
             <YAxis stroke="#ccc" domain={["auto", "auto"]} />
@@ -102,7 +115,7 @@ export default function TickerForecast() {
             />
             <Line
               type="monotone"
-              dataKey="price"
+              dataKey="actual"
               name="Actual"
               stroke="#FFFFFF"
               strokeWidth={3}
@@ -111,7 +124,7 @@ export default function TickerForecast() {
             />
             <Line
               type="monotone"
-              dataKey="price"
+              dataKey="forecast"
               name="Forecast"
               stroke="#00C8FF"
               strokeWidth={3}

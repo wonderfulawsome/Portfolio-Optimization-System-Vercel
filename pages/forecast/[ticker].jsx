@@ -13,7 +13,7 @@ export default function TickerForecast() {
     const fetchForecast = async () => {
       try {
         const res = await fetch(
-          "https://portfolio-optimization-system-flask.onrender.com/forecast",
+          "https://finoptima-price-forecast-render.onrender.com/forecast",
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },

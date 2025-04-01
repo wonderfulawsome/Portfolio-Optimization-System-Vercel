@@ -17,6 +17,7 @@ export default function TickerForecast() {
   const [fullData, setFullData] = useState([]);
   const [animatedData, setAnimatedData] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [elapsedTime, setElapsedTime] = useState(0);
 
   // 예측 데이터 요청
   useEffect(() => {
@@ -58,7 +59,18 @@ export default function TickerForecast() {
     return () => clearInterval(interval);
   }, [fullData]);
 
-  // undefined 항목 제거 후 실제와 예측 데이터를 병합
+  // 로딩 시 스톱워치 기능
+  useEffect(() => {
+    if (loading) {
+      setElapsedTime(0);
+      const timer = setInterval(() => {
+        setElapsedTime((prev) => prev + 1);
+      }, 1000);
+      return () => clearInterval(timer);
+    }
+  }, [loading]);
+
+  // 실제와 예측 데이터를 병합
   const combinedData = Object.values(
     animatedData
       .filter((item) => item && item.date)
@@ -75,6 +87,10 @@ export default function TickerForecast() {
         return acc;
       }, {})
   );
+
+  const minutes = Math.floor(elapsedTime / 60);
+  const seconds = elapsedTime % 60;
+  const formattedTime = `${minutes}:${seconds.toString().padStart(2, "0")}`;
 
   return (
     <div
@@ -118,6 +134,7 @@ export default function TickerForecast() {
             }}
           />
           <p style={{ marginTop: "10px" }}>Up to 1 minute</p>
+          <p style={{ marginTop: "5px" }}>Elapsed time: {formattedTime}</p>
         </div>
       ) : (
         <ResponsiveContainer width="100%" height={400}>

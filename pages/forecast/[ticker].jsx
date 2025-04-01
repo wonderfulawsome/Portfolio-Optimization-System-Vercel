@@ -24,12 +24,19 @@ export default function TickerForecast() {
     if (!ticker) return;
     const fetchForecast = async () => {
       setLoading(true);
+      setAnimatedData([]); // 기존 데이터 초기화
       try {
+        // 캐싱 방지를 위한 타임스탬프 추가
+        const timestamp = new Date().getTime();
         const res = await fetch(
-          "https://finoptima.onrender.com/forecast",
+          `https://finoptima.onrender.com/forecast?t=${timestamp}`,
           {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: { 
+              "Content-Type": "application/json",
+              "Cache-Control": "no-cache, no-store, must-revalidate",
+              "Pragma": "no-cache"
+            },
             body: JSON.stringify({ ticker }),
           }
         );
@@ -51,6 +58,7 @@ export default function TickerForecast() {
   useEffect(() => {
     if (fullData.length === 0) return;
     let index = 0;
+    setAnimatedData([]); // 애니메이션 시작 전 초기화
     const interval = setInterval(() => {
       setAnimatedData((prev) => [...prev, fullData[index]]);
       index++;

@@ -26,7 +26,7 @@ export default function TickerForecast() {
       setLoading(true);
       try {
         const res = await fetch(
-          "https://finoptima-price-forecast-render.onrender.com/forecast",
+          "https://finoptima.onrender.com/forecast",
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },

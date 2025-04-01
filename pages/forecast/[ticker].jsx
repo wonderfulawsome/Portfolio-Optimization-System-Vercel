@@ -18,6 +18,7 @@ export default function TickerForecast() {
   const [animatedData, setAnimatedData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [elapsedTime, setElapsedTime] = useState(0);
+  const [error, setError] = useState(null);
 
   // 예측 데이터 요청
   useEffect(() => {
@@ -25,11 +26,11 @@ export default function TickerForecast() {
     const fetchForecast = async () => {
       setLoading(true);
       setAnimatedData([]); // 기존 데이터 초기화
+      setError(null); // 에러 초기화
+      
       try {
-        // 캐싱 방지를 위한 타임스탬프 추가
-        const timestamp = new Date().getTime();
         const res = await fetch(
-          `https://finoptima.onrender.com/forecast?t=${timestamp}`,
+          "https://finoptima.onrender.com/forecast",
           {
             method: "POST",
             headers: { 
@@ -37,20 +38,36 @@ export default function TickerForecast() {
               "Cache-Control": "no-cache, no-store, must-revalidate",
               "Pragma": "no-cache"
             },
-            body: JSON.stringify({ ticker }),
+            body: JSON.stringify({ 
+              ticker,
+              timestamp: new Date().getTime() // 타임스탬프를 본문에 포함
+            }),
           }
         );
-        const json = await res.json();
-        if (!json.forecast || !Array.isArray(json.forecast)) {
-          console.error("예측 데이터 없음:", json);
-          return;
+        
+        if (!res.ok) {
+          throw new Error(`Server responded with status: ${res.status}`);
         }
+        
+        const json = await res.json();
+        
+        if (json.error) {
+          throw new Error(json.error);
+        }
+        
+        if (!json.forecast || !Array.isArray(json.forecast)) {
+          throw new Error("No forecast data returned from server");
+        }
+        
         setFullData(json.forecast);
       } catch (err) {
         console.error("예측 요청 실패:", err);
+        setError(err.message);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
+    
     fetchForecast();
   }, [ticker]);
 
@@ -121,6 +138,22 @@ export default function TickerForecast() {
       <h1 style={{ fontSize: "2.5rem", marginBottom: "30px" }}>
         Forecast for {ticker}
       </h1>
+      
+      {error && (
+        <div style={{ 
+          color: "#ff6b6b", 
+          backgroundColor: "rgba(255,0,0,0.1)", 
+          padding: "15px",
+          borderRadius: "5px",
+          marginBottom: "20px",
+          maxWidth: "600px",
+          textAlign: "center"
+        }}>
+          <p style={{ fontWeight: "bold", marginBottom: "5px" }}>Error:</p>
+          <p>{error}</p>
+        </div>
+      )}
+      
       {loading ? (
         <div
           style={{
@@ -144,7 +177,7 @@ export default function TickerForecast() {
           <p style={{ marginTop: "10px" }}>Up to 1 minute</p>
           <p style={{ marginTop: "5px" }}>Elapsed time: {formattedTime}</p>
         </div>
-      ) : (
+      ) : combinedData.length > 0 ? (
         <ResponsiveContainer width="100%" height={400}>
           <LineChart data={combinedData}>
             <CartesianGrid strokeDasharray="3 3" stroke="#444" />
@@ -180,6 +213,10 @@ export default function TickerForecast() {
             />
           </LineChart>
         </ResponsiveContainer>
+      ) : !error && (
+        <div style={{ textAlign: "center", padding: "40px" }}>
+          <p>No data available to display</p>
+        </div>
       )}
     </div>
   );

@@ -117,7 +117,7 @@ export default function TickerForecast() {
               animation: "spin 2s linear infinite",
             }}
           />
-          <p style={{ marginTop: "10px" }}>최대 1분 소요</p>
+          <p style={{ marginTop: "10px" }}>Up to 1 minute</p>
         </div>
       ) : (
         <ResponsiveContainer width="100%" height={400}>

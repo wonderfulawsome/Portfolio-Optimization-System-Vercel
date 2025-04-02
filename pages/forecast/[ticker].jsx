@@ -3,7 +3,6 @@ import { useRouter } from "next/router"
 import { useEffect, useState } from "react"
 import dynamic from "next/dynamic"
 
-// 동적 import (SSR 비활성화)
 const Line = dynamic(() => import("react-chartjs-2").then(mod => mod.Line), { ssr: false })
 
 import {
@@ -17,7 +16,6 @@ import {
   Legend,
 } from "chart.js"
 
-// annotation 플러그인 (수평/수직선 그리기 용)
 import annotationPlugin from "chartjs-plugin-annotation"
 
 ChartJS.register(
@@ -49,34 +47,28 @@ export default function TickerPage() {
       .catch(err => console.error(err))
   }, [ticker])
 
-  // fullData를 받아서 chart.js 형식으로 변환
   useEffect(() => {
     if (!fullData) return
 
-    // x축 라벨: real + predicted 날짜 전체
-    // 단, 중복 제거
     const realDates = fullData.real.map(d => d.ds)
     const predDates = fullData.predicted.map(d => d.ds)
     const allDatesSet = new Set([...realDates, ...predDates])
     const allDatesSorted = Array.from(allDatesSet).sort()
 
-    // 날짜 => 지수 인덱스 맵
     const dateToIndex = {}
     allDatesSorted.forEach((dt, idx) => { dateToIndex[dt] = idx })
 
-    // 실제 종가, 이동평균선, 예측 종가, 예측 이동평균선 등등
-    // 차트에서는 label별로 dataset을 만들어줄 수 있음
     const realCloseVals = new Array(allDatesSorted.length).fill(null)
     const sma20Vals = new Array(allDatesSorted.length).fill(null)
     const sma50Vals = new Array(allDatesSorted.length).fill(null)
-    const sma200Vals= new Array(allDatesSorted.length).fill(null)
+    const sma200Vals = new Array(allDatesSorted.length).fill(null)
 
     fullData.real.forEach(item => {
       const i = dateToIndex[item.ds]
       realCloseVals[i] = item.close
       sma20Vals[i] = item.sma20
       sma50Vals[i] = item.sma50
-      sma200Vals[i]= item.sma200
+      sma200Vals[i] = item.sma200
     })
 
     const predCloseVals = new Array(allDatesSorted.length).fill(null)
@@ -89,7 +81,6 @@ export default function TickerPage() {
       predSma50Vals[i]= item.sma50
     })
 
-    // RSI
     const rsiVals = new Array(allDatesSorted.length).fill(null)
     const predRsiVals = new Array(allDatesSorted.length).fill(null)
     fullData.real.forEach(item => {
@@ -100,23 +91,20 @@ export default function TickerPage() {
       const i = dateToIndex[item.ds]
       predRsiVals[i] = item.rsi
     })
-    // 최종 RSI = real + predicted를 하나로 연결해도 되고,  
-    // 아래처럼 한 배열로 합쳐버리면 편함
     for (let i=0; i<rsiVals.length; i++){
       if (rsiVals[i]===null && predRsiVals[i]!==null){
         rsiVals[i] = predRsiVals[i]
       }
     }
 
-    // 차트 주가 데이터 구성
     const mainChartData = {
       labels: allDatesSorted,
       datasets: [
         {
-          label: "실제 주가",
+          label: "Real Price",
           data: realCloseVals,
-          borderColor: "black",
-          backgroundColor: "black",
+          borderColor: "white", // 흰색 실선
+          backgroundColor: "white",
           pointRadius: 0,
           borderWidth: 2,
           tension: 0.2
@@ -149,7 +137,7 @@ export default function TickerPage() {
           tension: 0.2
         },
         {
-          label: "예측 주가",
+          label: "Forecast Price",
           data: predCloseVals,
           borderColor: "red",
           backgroundColor: "red",
@@ -159,7 +147,7 @@ export default function TickerPage() {
           tension: 0.2
         },
         {
-          label: "예측 SMA 20",
+          label: "Forecast SMA 20",
           data: predSma20Vals,
           borderColor: "green",
           backgroundColor: "green",
@@ -169,7 +157,7 @@ export default function TickerPage() {
           tension: 0.2
         },
         {
-          label: "예측 SMA 50",
+          label: "Forecast SMA 50",
           data: predSma50Vals,
           borderColor: "blue",
           backgroundColor: "blue",
@@ -181,7 +169,6 @@ export default function TickerPage() {
       ]
     }
 
-    // RSI 차트 데이터
     const rsiChartData = {
       labels: allDatesSorted,
       datasets: [
@@ -197,9 +184,8 @@ export default function TickerPage() {
       ]
     }
 
-    // 수평선(지지/저항) + 수직선(거래량 스파이크, 예측시작)
     let annots = {}
-    // 지지선
+    // Support lines
     fullData.support.forEach((level, idx) => {
       annots[`support_${idx}`] = {
         type: "line",
@@ -210,14 +196,14 @@ export default function TickerPage() {
         value: level,
         label: {
           display: idx===0,
-          content: "지지선",
+          content: "Support",
           position: "start"
         }
       }
     })
-    // 저항선
+    // Resistance lines
     fullData.resistance.forEach((level, idx) => {
-      annots[`resist_${idx}`] = {
+      annots[`resistance_${idx}`] = {
         type: "line",
         borderColor: "red",
         borderDash: [5,5],
@@ -226,14 +212,14 @@ export default function TickerPage() {
         value: level,
         label: {
           display: idx===0,
-          content: "저항선",
+          content: "Resistance",
           position: "start"
         }
       }
     })
-    // 거래량 스파이크 vertical line
+    // Volume Spike (vertical lines)
     fullData.volumeSpikes.forEach((dstr, idx) => {
-      if(!dateToIndex[dstr]) return
+      if(!dateToIndex[dstr] && dateToIndex[dstr]!==0) return
       annots[`volSpike_${idx}`] = {
         type: "line",
         borderColor: "purple",
@@ -243,12 +229,12 @@ export default function TickerPage() {
         borderDash: [2,2],
         label: {
           display: idx===0,
-          content: "거래량 스파이크",
+          content: "Volume Spike",
           position: "start"
         }
       }
     })
-    // 예측 시작 vertical line
+    // Forecast Start
     const fStartIdx = dateToIndex[fullData.forecastStart]
     annots["forecastStart"] = {
       type: "line",
@@ -259,7 +245,7 @@ export default function TickerPage() {
       borderDash: [2,2],
       label: {
         display: true,
-        content: "예측 시작",
+        content: "Forecast Start",
         position: "end"
       }
     }
@@ -279,6 +265,7 @@ export default function TickerPage() {
 
   const mainOptions = {
     responsive: true,
+    // 차트를 가로로 더 길게 보이려면 부모 컨테이너 폭을 늘리는 쪽이 더 간단
     animation: {
       duration: 2000
     },
@@ -286,7 +273,6 @@ export default function TickerPage() {
       x: {
         display: true,
         ticks: {
-          // 날짜 라벨 너무 많으면 간격 조절 or rotate
           maxRotation: 45,
           minRotation: 0
         }
@@ -318,7 +304,7 @@ export default function TickerPage() {
       legend: { display: true },
       annotation: {
         annotations: {
-          // 과매수선
+          // Overbought line
           overbought: {
             type: "line",
             scaleID: "y",
@@ -328,11 +314,11 @@ export default function TickerPage() {
             borderDash: [4,4],
             label: {
               display: true,
-              content: "과매수",
+              content: "Overbought",
               position: "end"
             }
           },
-          // 과매도선
+          // Oversold line
           oversold: {
             type: "line",
             scaleID: "y",
@@ -342,7 +328,7 @@ export default function TickerPage() {
             borderDash: [4,4],
             label: {
               display: true,
-              content: "과매도",
+              content: "Oversold",
               position: "end"
             }
           }
@@ -351,8 +337,19 @@ export default function TickerPage() {
     }
   }
 
+  // 더 넓은 폭을 위해 스타일 추가
+  const containerStyle = {
+    background:"#000",
+    color:"#fff",
+    minHeight:"100vh",
+    padding:"20px",
+    // 원하는 가로 폭 설정 (예: 1200px)
+    width: "1200px",
+    margin: "0 auto"
+  }
+
   return (
-    <div style={{ background:"#000", color:"#fff", minHeight:"100vh", padding:"20px" }}>
+    <div style={containerStyle}>
       <h1 style={{ marginBottom:"20px" }}>{ticker} Forecast</h1>
       <div style={{ marginBottom:"50px" }}>
         <Line data={chartData} options={mainOptions} />

@@ -29,7 +29,7 @@ export default function TickerPage() {
 
   useEffect(() => {
     if (!ticker) return;
-    fetch(`https://https://finoptima-price-forecast-render.onrender.com/forecast_data/${ticker}`)
+    fetch(`https://finoptima-price-forecast-render.onrender.com/forecast_data/${ticker}`)
       .then((res) => res.json())
       .then((data) => {
         // 예시: 실제 데이터와 예측 데이터를 합쳐서 차트 데이터를 구성

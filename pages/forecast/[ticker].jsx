@@ -28,7 +28,7 @@ export default function StockForecast() {
     setError(null)
     
     try {
-      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL || 'https://your-render-backend-url.onrender.com'}/api/predict`, {
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL || 'https://finoptima-price-forecast-render.onrender.com'}/api/predict`, {
         params: {
           ticker,
           days,

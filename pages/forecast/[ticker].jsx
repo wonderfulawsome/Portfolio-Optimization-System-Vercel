@@ -291,7 +291,7 @@ export default function TickerPage() {
         justifyContent: "center"
       }}>
         <div className="spinner"></div>
-        <p style={{ marginTop: "20px", fontSize: "18px" }}>Up to 1minute</p>
+        <p style={{ marginTop: "20px", fontSize: "18px" }}>Loading Maximum 1 minute</p>
         <div style={{ marginTop: "10px", fontSize: "24px" }}>
           {formatTime(elapsedTime)}
         </div>

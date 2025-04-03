@@ -40,7 +40,22 @@ export default function TickerPage() {
   const [chartData, setChartData] = useState(null)
   const [rsiData, setRsiData] = useState(null)
   const [annotations, setAnnotations] = useState({})
+  const [elapsedTime, setElapsedTime] = useState(0)
 
+  // 로딩 중 시간 업데이트 (1초마다 증가)
+  useEffect(() => {
+    let timer = null
+    if (!chartData || !rsiData) {
+      timer = setInterval(() => {
+        setElapsedTime(prev => prev + 1)
+      }, 1000)
+    }
+    return () => {
+      if (timer) clearInterval(timer)
+    }
+  }, [chartData, rsiData])
+
+  // Fetch 데이터
   useEffect(() => {
     if (!ticker) return
     fetch(`https://finoptima-price-forecast-render.onrender.com/forecast/${ticker}`)
@@ -49,6 +64,7 @@ export default function TickerPage() {
       .catch(err => console.error(err))
   }, [ticker])
 
+  // 데이터 가공
   useEffect(() => {
     if (!fullData) return
 
@@ -258,6 +274,11 @@ export default function TickerPage() {
   }, [fullData])
 
   if (!chartData || !rsiData) {
+    const formatTime = (seconds) => {
+      const min = Math.floor(seconds / 60)
+      const sec = seconds % 60
+      return `${min.toString().padStart(2, '0')}:${sec.toString().padStart(2, '0')}`
+    }
     return (
       <div style={{
         background: "#000",
@@ -271,11 +292,8 @@ export default function TickerPage() {
       }}>
         <div className="spinner"></div>
         <p style={{ marginTop: "20px", fontSize: "18px" }}>Up to 1minute</p>
-        <div style={{ marginTop: "10px" }} className="stopwatch">
-          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="12" cy="13" r="8"></circle>
-            <polyline points="12 9 12 13 14 15"></polyline>
-          </svg>
+        <div style={{ marginTop: "10px", fontSize: "24px" }}>
+          {formatTime(elapsedTime)}
         </div>
         <style jsx>{`
           .spinner {

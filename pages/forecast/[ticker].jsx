@@ -18,6 +18,10 @@ import {
 
 import annotationPlugin from "chartjs-plugin-annotation"
 
+// 전역 기본 설정: 텍스트는 흰색, 캔버스 배경은 투명하게
+ChartJS.defaults.color = "#fff"
+ChartJS.defaults.backgroundColor = "transparent"
+
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -72,13 +76,13 @@ export default function TickerPage() {
     })
 
     const predCloseVals = new Array(allDatesSorted.length).fill(null)
-    const predSma20Vals= new Array(allDatesSorted.length).fill(null)
-    const predSma50Vals= new Array(allDatesSorted.length).fill(null)
+    const predSma20Vals = new Array(allDatesSorted.length).fill(null)
+    const predSma50Vals = new Array(allDatesSorted.length).fill(null)
     fullData.predicted.forEach(item => {
       const i = dateToIndex[item.ds]
       predCloseVals[i] = item.yhat
-      predSma20Vals[i]= item.sma20
-      predSma50Vals[i]= item.sma50
+      predSma20Vals[i] = item.sma20
+      predSma50Vals[i] = item.sma50
     })
 
     const rsiVals = new Array(allDatesSorted.length).fill(null)
@@ -91,8 +95,8 @@ export default function TickerPage() {
       const i = dateToIndex[item.ds]
       predRsiVals[i] = item.rsi
     })
-    for (let i=0; i<rsiVals.length; i++){
-      if (rsiVals[i]===null && predRsiVals[i]!==null){
+    for (let i = 0; i < rsiVals.length; i++) {
+      if (rsiVals[i] === null && predRsiVals[i] !== null) {
         rsiVals[i] = predRsiVals[i]
       }
     }
@@ -103,7 +107,7 @@ export default function TickerPage() {
         {
           label: "Real Price",
           data: realCloseVals,
-          borderColor: "white", // 흰색 실선
+          borderColor: "white",
           backgroundColor: "white",
           pointRadius: 0,
           borderWidth: 2,
@@ -141,7 +145,7 @@ export default function TickerPage() {
           data: predCloseVals,
           borderColor: "red",
           backgroundColor: "red",
-          borderDash: [5,5],
+          borderDash: [5, 5],
           pointRadius: 0,
           borderWidth: 2,
           tension: 0.2
@@ -151,7 +155,7 @@ export default function TickerPage() {
           data: predSma20Vals,
           borderColor: "green",
           backgroundColor: "green",
-          borderDash: [5,5],
+          borderDash: [5, 5],
           pointRadius: 0,
           borderWidth: 1,
           tension: 0.2
@@ -161,7 +165,7 @@ export default function TickerPage() {
           data: predSma50Vals,
           borderColor: "blue",
           backgroundColor: "blue",
-          borderDash: [5,5],
+          borderDash: [5, 5],
           pointRadius: 0,
           borderWidth: 1,
           tension: 0.2
@@ -190,14 +194,15 @@ export default function TickerPage() {
       annots[`support_${idx}`] = {
         type: "line",
         borderColor: "green",
-        borderDash: [5,5],
+        borderDash: [5, 5],
         borderWidth: 1,
         scaleID: "y",
         value: level,
         label: {
-          display: idx===0,
+          display: idx === 0,
           content: "Support",
-          position: "start"
+          position: "start",
+          color: "#fff"
         }
       }
     })
@@ -206,31 +211,33 @@ export default function TickerPage() {
       annots[`resistance_${idx}`] = {
         type: "line",
         borderColor: "red",
-        borderDash: [5,5],
+        borderDash: [5, 5],
         borderWidth: 1,
         scaleID: "y",
         value: level,
         label: {
-          display: idx===0,
+          display: idx === 0,
           content: "Resistance",
-          position: "start"
+          position: "start",
+          color: "#fff"
         }
       }
     })
     // Volume Spike (vertical lines)
     fullData.volumeSpikes.forEach((dstr, idx) => {
-      if(!dateToIndex[dstr] && dateToIndex[dstr]!==0) return
+      if (!dateToIndex[dstr] && dateToIndex[dstr] !== 0) return
       annots[`volSpike_${idx}`] = {
         type: "line",
         borderColor: "purple",
         borderWidth: 1,
         scaleID: "x",
         value: dateToIndex[dstr],
-        borderDash: [2,2],
+        borderDash: [2, 2],
         label: {
-          display: idx===0,
+          display: idx === 0,
           content: "Volume Spike",
-          position: "start"
+          position: "start",
+          color: "#fff"
         }
       }
     })
@@ -242,11 +249,12 @@ export default function TickerPage() {
       borderWidth: 2,
       scaleID: "x",
       value: fStartIdx,
-      borderDash: [2,2],
+      borderDash: [2, 2],
       label: {
         display: true,
         content: "Forecast Start",
-        position: "end"
+        position: "end",
+        color: "#fff"
       }
     }
 
@@ -255,9 +263,9 @@ export default function TickerPage() {
     setAnnotations(annots)
   }, [fullData])
 
-  if(!chartData || !rsiData) {
+  if (!chartData || !rsiData) {
     return (
-      <div style={{ background:"#000", color:"#fff", minHeight:"100vh", padding:"20px" }}>
+      <div style={{ background: "#000", color: "#fff", minHeight: "100vh", padding: "20px" }}>
         Loading...
       </div>
     )
@@ -265,7 +273,7 @@ export default function TickerPage() {
 
   const mainOptions = {
     responsive: true,
-    // 차트를 가로로 더 길게 보이려면 부모 컨테이너 폭을 늘리는 쪽이 더 간단
+    maintainAspectRatio: false,
     animation: {
       duration: 2000
     },
@@ -273,14 +281,25 @@ export default function TickerPage() {
       x: {
         display: true,
         ticks: {
+          color: "#fff",
           maxRotation: 45,
           minRotation: 0
+        },
+        grid: {
+          color: "rgba(255,255,255,0.2)"
         }
       },
-      y: { display: true }
+      y: {
+        display: true,
+        ticks: { color: "#fff" },
+        grid: { color: "rgba(255,255,255,0.2)" }
+      }
     },
     plugins: {
-      legend: { display: true },
+      legend: {
+        display: true,
+        labels: { color: "#fff" }
+      },
       annotation: {
         annotations: annotations
       }
@@ -289,47 +308,57 @@ export default function TickerPage() {
 
   const rsiOptions = {
     responsive: true,
+    maintainAspectRatio: false,
     animation: {
       duration: 2000
     },
     scales: {
-      x: { display: true },
+      x: {
+        display: true,
+        ticks: { color: "#fff" },
+        grid: { color: "rgba(255,255,255,0.2)" }
+      },
       y: {
         display: true,
         min: 0,
-        max: 100
+        max: 100,
+        ticks: { color: "#fff" },
+        grid: { color: "rgba(255,255,255,0.2)" }
       }
     },
     plugins: {
-      legend: { display: true },
+      legend: {
+        display: true,
+        labels: { color: "#fff" }
+      },
       annotation: {
         annotations: {
-          // Overbought line
           overbought: {
             type: "line",
             scaleID: "y",
             value: 70,
             borderColor: "red",
             borderWidth: 1,
-            borderDash: [4,4],
+            borderDash: [4, 4],
             label: {
               display: true,
               content: "Overbought",
-              position: "end"
+              position: "end",
+              color: "#fff"
             }
           },
-          // Oversold line
           oversold: {
             type: "line",
             scaleID: "y",
             value: 30,
             borderColor: "green",
             borderWidth: 1,
-            borderDash: [4,4],
+            borderDash: [4, 4],
             label: {
               display: true,
               content: "Oversold",
-              position: "end"
+              position: "end",
+              color: "#fff"
             }
           }
         }
@@ -337,24 +366,22 @@ export default function TickerPage() {
     }
   }
 
-  // 더 넓은 폭을 위해 스타일 추가
   const containerStyle = {
-    background:"#000",
-    color:"#fff",
-    minHeight:"100vh",
-    padding:"20px",
-    // 원하는 가로 폭 설정 (예: 1200px)
+    background: "#000",
+    color: "#fff",
+    minHeight: "100vh",
+    padding: "20px",
     width: "1200px",
     margin: "0 auto"
   }
 
   return (
     <div style={containerStyle}>
-      <h1 style={{ marginBottom:"20px" }}>{ticker} Forecast</h1>
-      <div style={{ marginBottom:"50px" }}>
+      <h1 style={{ marginBottom: "20px" }}>{ticker} Forecast</h1>
+      <div style={{ marginBottom: "50px", height: "500px" }}>
         <Line data={chartData} options={mainOptions} />
       </div>
-      <div>
+      <div style={{ height: "300px" }}>
         <Line data={rsiData} options={rsiOptions} />
       </div>
     </div>

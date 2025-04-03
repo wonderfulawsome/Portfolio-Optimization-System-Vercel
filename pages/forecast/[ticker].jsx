@@ -45,9 +45,7 @@ export default function TickerPage() {
     if (!ticker) return
     fetch(`https://finoptima-price-forecast-render.onrender.com/forecast/${ticker}`)
       .then(res => res.json())
-      .then(data => {
-        setFullData(data)
-      })
+      .then(data => setFullData(data))
       .catch(err => console.error(err))
   }, [ticker])
 
@@ -189,7 +187,6 @@ export default function TickerPage() {
     }
 
     let annots = {}
-    // Support lines
     fullData.support.forEach((level, idx) => {
       annots[`support_${idx}`] = {
         type: "line",
@@ -206,7 +203,6 @@ export default function TickerPage() {
         }
       }
     })
-    // Resistance lines
     fullData.resistance.forEach((level, idx) => {
       annots[`resistance_${idx}`] = {
         type: "line",
@@ -223,7 +219,6 @@ export default function TickerPage() {
         }
       }
     })
-    // Volume Spike (vertical lines)
     fullData.volumeSpikes.forEach((dstr, idx) => {
       if (!dateToIndex[dstr] && dateToIndex[dstr] !== 0) return
       annots[`volSpike_${idx}`] = {
@@ -241,7 +236,6 @@ export default function TickerPage() {
         }
       }
     })
-    // Forecast Start
     const fStartIdx = dateToIndex[fullData.forecastStart]
     annots["forecastStart"] = {
       type: "line",
@@ -265,8 +259,38 @@ export default function TickerPage() {
 
   if (!chartData || !rsiData) {
     return (
-      <div style={{ background: "#000", color: "#fff", minHeight: "100vh", padding: "20px" }}>
-        Loading...
+      <div style={{
+        background: "#000",
+        color: "#fff",
+        minHeight: "100vh",
+        padding: "20px",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center"
+      }}>
+        <div className="spinner"></div>
+        <p style={{ marginTop: "20px", fontSize: "18px" }}>Up to 1minute</p>
+        <div style={{ marginTop: "10px" }} className="stopwatch">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="13" r="8"></circle>
+            <polyline points="12 9 12 13 14 15"></polyline>
+          </svg>
+        </div>
+        <style jsx>{`
+          .spinner {
+            border: 4px solid rgba(255,255,255,0.2);
+            border-top: 4px solid #fff;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+          }
+          @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+        `}</style>
       </div>
     )
   }
@@ -274,9 +298,7 @@ export default function TickerPage() {
   const mainOptions = {
     responsive: true,
     maintainAspectRatio: false,
-    animation: {
-      duration: 2000
-    },
+    animation: { duration: 2000 },
     scales: {
       x: {
         display: true,
@@ -285,9 +307,7 @@ export default function TickerPage() {
           maxRotation: 45,
           minRotation: 0
         },
-        grid: {
-          color: "rgba(255,255,255,0.2)"
-        }
+        grid: { color: "rgba(255,255,255,0.2)" }
       },
       y: {
         display: true,
@@ -296,22 +316,15 @@ export default function TickerPage() {
       }
     },
     plugins: {
-      legend: {
-        display: true,
-        labels: { color: "#fff" }
-      },
-      annotation: {
-        annotations: annotations
-      }
+      legend: { display: true, labels: { color: "#fff" } },
+      annotation: { annotations: annotations }
     }
   }
 
   const rsiOptions = {
     responsive: true,
     maintainAspectRatio: false,
-    animation: {
-      duration: 2000
-    },
+    animation: { duration: 2000 },
     scales: {
       x: {
         display: true,
@@ -327,10 +340,7 @@ export default function TickerPage() {
       }
     },
     plugins: {
-      legend: {
-        display: true,
-        labels: { color: "#fff" }
-      },
+      legend: { display: true, labels: { color: "#fff" } },
       annotation: {
         annotations: {
           overbought: {

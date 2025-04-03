@@ -146,7 +146,7 @@ export default function TickerPage() {
           tension: 0.2
         },
         {
-          label: "SMA 200",
+          label: "SMA 5",
           data: sma200Vals,
           borderColor: "red",
           backgroundColor: "red",

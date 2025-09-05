@@ -5,7 +5,7 @@ export default function PortfolioOptimizer() {
   const optimizePortfolio = async () => {
     setLoading(true);
     try {
-      const response = await fetch("https://portfolio-optimization-system.onrender.com/optimize", {
+      const response = await fetch("https://portfolio-optimization-system-flask.onrender.com/optimize", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -63,3 +63,4 @@ export default function PortfolioOptimizer() {
     </div>
   );
 }
+

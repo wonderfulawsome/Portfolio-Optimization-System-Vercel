@@ -1,14 +1,13 @@
 document.getElementById('optimize-button').addEventListener('click', function() {
     const formData = {
-      PER: document.getElementById('PER').value,
-      DividendYield: document.getElementById('DividendYield').value,
-      Beta: document.getElementById('Beta').value,
-      RSI: document.getElementById('RSI').value,
-      Volume: document.getElementById('Volume').value,
-      Volatility: document.getElementById('Volatility').value,
+      pe: document.getElementById('pe').value,
+      eps: document.getElementById('eps').value,
+      marketCap: document.getElementById('marketCap').value,
+      norm_price_diffs: document.getElementById('norm_price_diffs').value,
+      norm_price_ranges: document.getElementById('norm_price_ranges').value,
+      norm_volume_ratios: document.getElementById('norm_volume_ratios').value,
     };
   
-    // 필수 입력값이 빠지면 경고
     for (const key in formData) {
       if (formData[key] === "") {
         alert(`${key} 값을 선택해주세요.`);
@@ -28,4 +27,3 @@ document.getElementById('optimize-button').addEventListener('click', function() 
     })
     .catch(error => console.error("Error:", error));
   });
-  

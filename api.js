@@ -1,11 +1,10 @@
-// api.js
 export async function optimizePortfolio({
-    PER,
-    DividendYield,
-    Beta,
-    RSI,
-    volume,
-    Volatility,
+    pe,
+    eps,
+    marketCap,
+    norm_price_diffs,
+    norm_price_ranges,
+    norm_volume_ratios,
   }) {
     try {
       const response = await fetch(
@@ -14,12 +13,12 @@ export async function optimizePortfolio({
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            PER,
-            DividendYield,
-            Beta,
-            RSI,
-            volume,
-            Volatility,
+            pe,
+            eps,
+            marketCap,
+            norm_price_diffs,
+            norm_price_ranges,
+            norm_volume_ratios,
           }),
         }
       );
@@ -34,4 +33,3 @@ export async function optimizePortfolio({
       return null;
     }
   }
-  

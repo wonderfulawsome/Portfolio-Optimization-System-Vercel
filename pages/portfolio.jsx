@@ -12,6 +12,7 @@ export default function Home() {
   const [Volatility, setVolatility] = useState("medium");
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [chartKey, setChartKey] = useState(0);
 
   // 스톱워치 상태 및 업데이트
   const [elapsedTime, setElapsedTime] = useState(0);
@@ -48,6 +49,7 @@ export default function Home() {
         Volatility,
       });
       setResult(data);
+      setChartKey(prev => prev + 1);
     } catch (error) {
       console.error("Error fetching portfolio:", error);
     }
@@ -315,7 +317,7 @@ export default function Home() {
           <>
             <div style={resultUpperStyle}>
               <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
+                <PieChart key={chartKey}>
                   <Pie
                     data={pieData}
                     dataKey="value"

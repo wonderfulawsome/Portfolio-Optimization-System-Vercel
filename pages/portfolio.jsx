@@ -1,4 +1,3 @@
-// pages/index.js
 import { useState, useEffect } from "react";
 import { optimizePortfolio } from "../api";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
@@ -12,15 +11,12 @@ export default function Home() {
   const [Volatility, setVolatility] = useState("medium");
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
-
-  // 스톱워치 상태 및 업데이트
   const [elapsedTime, setElapsedTime] = useState(0);
+
   const formatTime = (seconds) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
-    return `${mins.toString().padStart(2, "0")}:${secs
-      .toString()
-      .padStart(2, "0")}`;
+    return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
   };
 
   useEffect(() => {
@@ -35,9 +31,9 @@ export default function Home() {
     return () => timer && clearInterval(timer);
   }, [loading]);
 
-  // 최적화 버튼 클릭 시 실행
   const handleOptimize = async () => {
     setLoading(true);
+    setResult(null); // 초기화 추가
     try {
       const data = await optimizePortfolio({
         PER,
@@ -54,7 +50,6 @@ export default function Home() {
     setLoading(false);
   };
 
-  // 최적화 결과를 파이차트 데이터 형식으로 변환
   const pieData =
     result && result.optimal_portfolio
       ? Object.entries(result.optimal_portfolio).map(([name, value]) => ({
@@ -63,7 +58,6 @@ export default function Home() {
         }))
       : [];
 
-  // 파이차트에서 사용될 색상 목록
   const COLORS = [
     "#0088FE",
     "#00C49F",
@@ -75,7 +69,6 @@ export default function Home() {
     "#66FF66",
   ];
 
-  // 전체 레이아웃 스타일
   const mainContainerStyle = {
     display: "flex",
     flexWrap: "wrap",
@@ -86,7 +79,6 @@ export default function Home() {
     boxSizing: "border-box",
   };
 
-  // 왼쪽 폼 영역 스타일
   const formColumnStyle = {
     flex: "1",
     minWidth: "300px",
@@ -98,7 +90,6 @@ export default function Home() {
     textAlign: "center",
   };
 
-  // 오른쪽 결과 영역 스타일
   const resultColumnStyle = {
     flex: "1",
     minWidth: "300px",
@@ -109,7 +100,6 @@ export default function Home() {
     justifyContent: "center",
   };
 
-  // 폼 그룹 스타일
   const formGroupStyle = {
     marginBottom: "10px",
     width: "100%",
@@ -158,7 +148,6 @@ export default function Home() {
     borderRadius: "5px",
   };
 
-  // 로딩 오버레이 스타일
   const loadingOverlayStyle = {
     position: "fixed",
     top: 0,
@@ -178,13 +167,7 @@ export default function Home() {
       {loading && (
         <div style={loadingOverlayStyle}>
           <div className="spinner"></div>
-          <div
-            style={{
-              marginTop: "20px",
-              fontSize: "24px",
-              fontWeight: "bold",
-            }}
-          >
+          <div style={{ marginTop: "20px", fontSize: "24px", fontWeight: "bold" }}>
             {formatTime(elapsedTime)}
           </div>
           <div style={{ marginTop: "10px", fontSize: "18px" }}>
@@ -193,15 +176,8 @@ export default function Home() {
         </div>
       )}
 
-      {/* 왼쪽 폼 영역 */}
       <div style={formColumnStyle}>
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
           <h1>
             FinOptima<br />
             <small style={{ fontSize: "60%", fontWeight: "normal" }}>
@@ -222,11 +198,7 @@ export default function Home() {
         <div style={formGroupStyle}>
           <label>
             PER:
-            <select
-              value={PER}
-              onChange={(e) => setPER(e.target.value)}
-              style={selectStyle}
-            >
+            <select value={PER} onChange={(e) => setPER(e.target.value)} style={selectStyle}>
               <option value="low">Low</option>
               <option value="medium">Medium</option>
               <option value="high">High</option>
@@ -236,11 +208,7 @@ export default function Home() {
         <div style={formGroupStyle}>
           <label>
             Dividend Yield:
-            <select
-              value={DividendYield}
-              onChange={(e) => setDividendYield(e.target.value)}
-              style={selectStyle}
-            >
+            <select value={DividendYield} onChange={(e) => setDividendYield(e.target.value)} style={selectStyle}>
               <option value="low">Low</option>
               <option value="medium">Medium</option>
               <option value="high">High</option>
@@ -250,11 +218,7 @@ export default function Home() {
         <div style={formGroupStyle}>
           <label>
             Beta:
-            <select
-              value={Beta}
-              onChange={(e) => setBeta(e.target.value)}
-              style={selectStyle}
-            >
+            <select value={Beta} onChange={(e) => setBeta(e.target.value)} style={selectStyle}>
               <option value="low">Low</option>
               <option value="medium">Medium</option>
               <option value="high">High</option>
@@ -264,11 +228,7 @@ export default function Home() {
         <div style={formGroupStyle}>
           <label>
             RSI:
-            <select
-              value={RSI}
-              onChange={(e) => setRSI(e.target.value)}
-              style={selectStyle}
-            >
+            <select value={RSI} onChange={(e) => setRSI(e.target.value)} style={selectStyle}>
               <option value="low">Low</option>
               <option value="medium">Medium</option>
               <option value="high">High</option>
@@ -278,11 +238,7 @@ export default function Home() {
         <div style={formGroupStyle}>
           <label>
             Volume:
-            <select
-              value={volume}
-              onChange={(e) => setVolume(e.target.value)}
-              style={selectStyle}
-            >
+            <select value={volume} onChange={(e) => setVolume(e.target.value)} style={selectStyle}>
               <option value="low">Low</option>
               <option value="medium">Medium</option>
               <option value="high">High</option>
@@ -292,11 +248,7 @@ export default function Home() {
         <div style={formGroupStyle}>
           <label>
             Volatility:
-            <select
-              value={Volatility}
-              onChange={(e) => setVolatility(e.target.value)}
-              style={selectStyle}
-            >
+            <select value={Volatility} onChange={(e) => setVolatility(e.target.value)} style={selectStyle}>
               <option value="low">Low</option>
               <option value="medium">Medium</option>
               <option value="high">High</option>
@@ -308,14 +260,13 @@ export default function Home() {
         </button>
       </div>
 
-      {/* 오른쪽 결과 영역 */}
       <div style={resultColumnStyle}>
         <h2 style={{ textAlign: "center" }}>Optimization Result</h2>
         {result ? (
           <>
             <div style={resultUpperStyle}>
               <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
+                <PieChart key={Date.now()}> {/* key 추가 */}
                   <Pie
                     data={pieData}
                     dataKey="value"
@@ -327,10 +278,7 @@ export default function Home() {
                     label
                   >
                     {pieData.map((entry, index) => (
-                      <Cell
-                        key={`cell-${index}`}
-                        fill={COLORS[index % COLORS.length]}
-                      />
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}
                   </Pie>
                   <Tooltip />
@@ -338,15 +286,13 @@ export default function Home() {
               </ResponsiveContainer>
             </div>
             <div style={allocationGridStyle}>
-              {Object.entries(result.optimal_portfolio).map(
-                ([ticker, percent]) => (
-                  <div key={ticker} style={allocationItemStyle}>
-                    <strong>{ticker}</strong>
-                    <br />
-                    {percent}%
-                  </div>
-                )
-              )}
+              {Object.entries(result.optimal_portfolio).map(([ticker, percent]) => (
+                <div key={ticker} style={allocationItemStyle}>
+                  <strong>{ticker}</strong>
+                  <br />
+                  {percent}%
+                </div>
+              ))}
             </div>
           </>
         ) : (
@@ -395,12 +341,8 @@ export default function Home() {
           opacity: 1;
         }
         @keyframes spin {
-          0% {
-            transform: rotate(0deg);
-          }
-          100% {
-            transform: rotate(360deg);
-          }
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
         }
         .spinner {
           border: 8px solid rgba(255, 255, 255, 0.2);

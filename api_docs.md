@@ -6,10 +6,11 @@
 - **Request Body (JSON)**
 ```json
 {
-    "pe": "high",
-    "eps": "medium", 
-    "marketCap": "low",
-    "norm_price_diffs": "medium",
-    "norm_price_ranges": "high",
-    "norm_volume_ratios": "low"
+    "PER": "high",
+    "DividendYield": "medium",
+    "Beta": "low",
+    "RSI": "medium",
+    "Volume": "high",
+    "Volatility": "low"
 }
+

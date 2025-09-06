@@ -12,6 +12,7 @@ export default function Home() {
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
   const [elapsedTime, setElapsedTime] = useState(0);
+  const [chartKey, setChartKey] = useState(0); // 추가
 
   const formatTime = (seconds) => {
     const mins = Math.floor(seconds / 60);
@@ -33,7 +34,7 @@ export default function Home() {
 
   const handleOptimize = async () => {
     setLoading(true);
-    setResult(null); // 초기화 추가
+    setResult(null);
     try {
       const data = await optimizePortfolio({
         PER,
@@ -44,6 +45,7 @@ export default function Home() {
         Volatility,
       });
       setResult(data);
+      setChartKey(prev => prev + 1); // 추가
     } catch (error) {
       console.error("Error fetching portfolio:", error);
     }
@@ -266,7 +268,7 @@ export default function Home() {
           <>
             <div style={resultUpperStyle}>
               <ResponsiveContainer width="100%" height="100%">
-                <PieChart key={Date.now()}> {/* key 추가 */}
+                <PieChart key={chartKey}> {/* 변경 */}
                   <Pie
                     data={pieData}
                     dataKey="value"

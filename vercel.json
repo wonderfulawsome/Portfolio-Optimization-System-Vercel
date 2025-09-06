@@ -1,5 +1,5 @@
 {
   "rewrites": [
-    { "source": "/api/:path*", "destination": "https://portfolio-optimization-system-flask.onrender.com/:path*" }
+    { "source": "/api/:path*", "destination": "https://flask-api.onrender.com/:path*" }
   ]
 }
